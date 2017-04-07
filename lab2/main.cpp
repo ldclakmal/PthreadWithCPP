@@ -19,6 +19,7 @@ const double M_DELETE = 0.05;
 int *raw_array;
 int *input_array;
 int *function_array;
+int *linkedlist_array;
 
 int program_type;
 long thread_count;
@@ -30,7 +31,7 @@ struct Node {
     Node *next;
 };
 
-void initialize(Node *head);
+struct Node* initialize(Node *head);
 
 void getArgs(int argc, int argv);
 
@@ -65,7 +66,7 @@ int main() {
 
     head = NULL;
 
-    initialize(head);           /* Initialize arrays of data */
+    head = initialize(head);           /* Initialize arrays of data */
 
     /* call the relevant method according to the user input
      * 1 - Serial program
@@ -80,6 +81,7 @@ int main() {
     thread_handles = (pthread_t *) malloc(thread_count * sizeof(pthread_t));
     switch (program_type) {
         case 1 : GET_TIME(start);
+            displayList(head);
             for (thread = 0; thread < thread_count; thread++)
                 pthread_create(&thread_handles[thread], NULL, serialProgram, (void *) thread);
 
@@ -88,7 +90,7 @@ int main() {
             GET_TIME(finish);
             elapsed = finish - start;
 
-            printf("Serial Program \n");
+            printf("\nSerial Program \n");
             printf("------------------------------------------------------------------------ \n");
             printf("No. of threads: %d\n", thread_count);
             printf("The elapsed time: %e seconds\n", elapsed);
@@ -112,7 +114,7 @@ int main() {
             pthread_mutex_destroy(&mutex);
             free(thread_handles);
 
-            printf("Serial Program \n");
+            printf("\nParallel Program with Mutex \n");
             printf("------------------------------------------------------------------------ \n");
             printf("No. of threads: %d,\n", thread_count);
             printf("The elapsed time: %e seconds\n", elapsed);
@@ -136,7 +138,7 @@ int main() {
             pthread_rwlock_destroy(&rwlock);
             free(thread_handles);
 
-            printf("Serial Program \n");
+            printf("\nParallel Program with RW Locks \n");
             printf("------------------------------------------------------------------------ \n");
             printf("No. of threads: %d,\n", thread_count);
             printf("The elapsed time: %e seconds\n", elapsed);
@@ -208,6 +210,8 @@ void *serialProgram(void *rank) {
         else if (function_array[i] == 1) insertNode(input_array[i], &head);
         else if (function_array[i] == -1) deleteNode(input_array[i], &head);
     }
+
+    displayList(head);
 }
 
 /*------------------------------------------------------------------
@@ -217,12 +221,13 @@ void *serialProgram(void *rank) {
  * Globals out: RAW_DATA, INPUT_ARRAY, FUNCTION_ARRAY
  */
 
-void initialize(struct Node *head) {
+struct Node* initialize(struct Node *head) {
 
     // initialize the arrays
     raw_array = new int[NUM_RANGE];
     input_array = new int[M];
     function_array = new int[M];
+    linkedlist_array = new int[N];
 
     // calculate count of each function member, insert and delete
     const int count_member = M * M_MEMBER;
@@ -247,6 +252,10 @@ void initialize(struct Node *head) {
     for (int i = 0; i < M; i++)
         input_array[i] = raw_array[rand() % NUM_RANGE];
 
+    // fill the linkedlist array with the first N elements from shuffled raw data array
+    for (int i = 0; i < N; i++)
+        linkedlist_array[i] = raw_array[i];
+
     printf("This is the input array. Size = %d \n", M);
     printf("------------------------------------------------------------------------ \n");
     for (int i = 0; i < M; i++)
@@ -261,9 +270,11 @@ void initialize(struct Node *head) {
 
     printf("This is the initial linkedlist just after populating. Size = %d \n", N);
     printf("------------------------------------------------------------------------ \n");
-    populateLinkedList(input_array, N, &head);
+    populateLinkedList(linkedlist_array, N, &head);
     displayList(head);
     printf("\n \n");
+
+    return head;
 }
 
 
