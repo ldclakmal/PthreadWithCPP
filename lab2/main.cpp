@@ -12,9 +12,9 @@ const int NUM_RANGE = 65535;
 const int N = 10;
 const int M = 100;
 
-const double M_MEMBER = 0.0;
-const double M_INSERT = 0.0;
-const double M_DELETE = 1.0;
+const double M_MEMBER = 0.9;
+const double M_INSERT = 0.05;
+const double M_DELETE = 0.05;
 
 int *raw_array;
 int *input_array;
@@ -63,10 +63,9 @@ int main() {
     printf("Program type: %d \n", program_type);
     printf("Thread count: %d \n \n", thread_count);
 
-    head = new Node;
+    head = NULL;
 
     initialize(head);           /* Initialize arrays of data */
-    //getArgs(argc, argv);   /* Get number of threads from command line */
 
     /* call the relevant method according to the user input
      * 1 - Serial program
@@ -212,18 +211,6 @@ void *serialProgram(void *rank) {
 }
 
 /*------------------------------------------------------------------
- * Function:    Get_Args
- * Purpose:     Get the command line args of no of threads
- * In args:     argc
- * Globals out: thread_count, program_type
- */
-void getArgs(int argc, int argv) {
-    thread_count = argc;
-    program_type = argv;
-    if (thread_count <= 0 || thread_count > MAX_THREADS) printf("Thread count should be between 0 and %d", MAX_THREADS);
-}
-
-/*------------------------------------------------------------------
  * Function:    Initialize
  * Purpose:     Initialize global variables
  * In args:     -
@@ -293,13 +280,9 @@ void displayList(struct Node *head) {
 
 //Create the linked list
 void populateLinkedList(int *arr, int size, struct Node **head) {
-    initNode(head, arr[0]);
-    printf("--->>> ");
     for (int a = 0; a < size; a++) {
         insertNode(arr[a], head);
-        printf("%d ", arr[a]);
     }
-    printf("\n");
 }
 
 //Add initial node to the linked list
@@ -365,6 +348,7 @@ int insertNode(int value, struct Node **head) {
             *head = temp;
         else
             pred->next = temp;
+        printf("YES Insert : %d \n", value);
         return 1;
     } else {
         return 0;
