@@ -41,8 +41,6 @@ void *parallelProgramMutex(void *rank);
 
 void *parallelProgramRWLock(void *rank);
 
-void initNode(struct Node **head, int n);
-
 void displayList(struct Node *head);
 
 void populateLinkedList(int arr[], int size, struct Node **head);
@@ -60,28 +58,26 @@ int main() {
     // use for generation random values using random_shuffle algorithm
     srand(time(0));
 
+    // get the program type and thread count as user inputs
     cin >> program_type >> thread_count;
     printf("Program type: %d \n", program_type);
     printf("Thread count: %d \n \n", thread_count);
 
-    head = NULL;
-
-    head = initialize(head);           /* Initialize arrays of data */
+    head = NULL;                       // initialize head as NULL
+    head = initialize(head);           // assign head after populating linkedlist and required arrays
 
     /* call the relevant method according to the user input
      * 1 - Serial program
      * 2 - Parallel program (based on Pthreads) with one mutex for the entire linked list
      * 3 - Parallel program (based on Pthreads) with read-write locks for the entire linked list
      */
-
     long thread;
     pthread_t *thread_handles;
     double start, finish, elapsed;
-
     thread_handles = (pthread_t *) malloc(thread_count * sizeof(pthread_t));
+
     switch (program_type) {
         case 1 : GET_TIME(start);
-            displayList(head);
             for (thread = 0; thread < thread_count; thread++)
                 pthread_create(&thread_handles[thread], NULL, serialProgram, (void *) thread);
 
@@ -96,7 +92,6 @@ int main() {
             printf("The elapsed time: %e seconds\n", elapsed);
 
             printf("This is the final linkedlist after operations.\n");
-            printf("------------------------------------------------------------------------ \n");
             displayList(head);
             break;
         case 2 :
@@ -112,7 +107,6 @@ int main() {
             elapsed = finish - start;
 
             pthread_mutex_destroy(&mutex);
-            free(thread_handles);
 
             printf("\nParallel Program with Mutex \n");
             printf("------------------------------------------------------------------------ \n");
@@ -120,7 +114,6 @@ int main() {
             printf("The elapsed time: %e seconds\n", elapsed);
 
             printf("This is the final linkedlist after operations.\n");
-            printf("------------------------------------------------------------------------ \n");
             displayList(head);
             break;
         case 3 :
@@ -136,7 +129,6 @@ int main() {
             elapsed = finish - start;
 
             pthread_rwlock_destroy(&rwlock);
-            free(thread_handles);
 
             printf("\nParallel Program with RW Locks \n");
             printf("------------------------------------------------------------------------ \n");
@@ -144,12 +136,14 @@ int main() {
             printf("The elapsed time: %e seconds\n", elapsed);
 
             printf("This is the final linkedlist after operations.\n");
-            printf("------------------------------------------------------------------------ \n");
             displayList(head);
             break;
         default :
             printf("Invalid input for program type.");
     }
+
+    free(thread_handles);
+    return 0;
 }
 
 void *parallelProgramRWLock(void *rank) {
@@ -217,10 +211,10 @@ void *serialProgram(void *rank) {
 /*------------------------------------------------------------------
  * Function:    Initialize
  * Purpose:     Initialize global variables
- * In args:     -
- * Globals out: RAW_DATA, INPUT_ARRAY, FUNCTION_ARRAY
+ * In args:     Global head node
+ * Globals out: RAW_DATA, INPUT_ARRAY, FUNCTION_ARRAY, LINKEDLIST_ARRAY
+ * Returns:     head
  */
-
 struct Node* initialize(struct Node *head) {
 
     // initialize the arrays
@@ -277,8 +271,12 @@ struct Node* initialize(struct Node *head) {
     return head;
 }
 
-
-//Display the linked list
+/*------------------------------------------------------------------
+ * Function:    DisplayList
+ * Purpose:     Display the linkedlist
+ * In args:     Global head node
+ * Globals out: -
+ */
 void displayList(struct Node *head) {
     printf("--->>> ");
     struct Node *curr = head;
@@ -289,36 +287,44 @@ void displayList(struct Node *head) {
     printf("\n");
 }
 
-//Create the linked list
+/*------------------------------------------------------------------
+ * Function:    PopulateLinkedList
+ * Purpose:     Populate the linkedlist
+ * In args:     Data array, Size of linkedlist, Global head node
+ * Globals out: -
+ */
 void populateLinkedList(int *arr, int size, struct Node **head) {
     for (int a = 0; a < size; a++) {
         insertNode(arr[a], head);
     }
 }
 
-//Add initial node to the linked list
-void initNode(struct Node **head, int n) {
-    struct Node *curr = *head;
-    curr->data = n;
-    curr->next = NULL;
-}
-
-//Return whether the value is a member
+/*------------------------------------------------------------------
+ * Function:    Member
+ * Purpose:     Returns whether member or not
+ * In args:     Data value, Global head node
+ * Globals out: 0 or 1
+ */
 int member(int value, struct Node *head) {
     struct Node *curr = head;
     while (curr != NULL && curr->data < value) {
         curr = curr->next;
     }
     if (curr == NULL || curr->data > value) {
-        printf("NO Member : %d \n", value);
+        printf("NO Member : %d | ", value);
         return 0;
     } else {
-        printf("YES Member : %d \n", value);
+        printf("YES Member : %d | ", value);
         return 1;
     }
 }
 
-//Delete a node from the list
+/*------------------------------------------------------------------
+ * Function:    DeleteNode
+ * Purpose:     Returns whether deleted or not
+ * In args:     Data value, Global head node
+ * Globals out: 0 or 1
+ */
 int deleteNode(int value, struct Node **head) {
     struct Node *curr = *head;
     struct Node *pred = NULL;
@@ -334,14 +340,20 @@ int deleteNode(int value, struct Node **head) {
             pred->next = curr->next;
             free(curr);
         }
-        printf("YES Delete : %d \n", value);
+        printf("YES Delete : %d | ", value);
         return 1;
     } else { /*value isn't in the list.*/
-        printf("NO Delete : %d \n", value);
+        printf("NO Delete : %d | ", value);
         return 0;
     }
 }
 
+/*------------------------------------------------------------------
+ * Function:    InsertNode
+ * Purpose:     Returns whether inserted or not
+ * In args:     Data value, Global head node
+ * Globals out: 0 or 1
+ */
 int insertNode(int value, struct Node **head) {
     struct Node *curr = *head;
     struct Node *pred = NULL;
@@ -359,9 +371,10 @@ int insertNode(int value, struct Node **head) {
             *head = temp;
         else
             pred->next = temp;
-        printf("YES Insert : %d \n", value);
+        printf("YES Insert : %d | ", value);
         return 1;
     } else {
+        printf("NO Insert : %d | ", value);
         return 0;
     }
 }
