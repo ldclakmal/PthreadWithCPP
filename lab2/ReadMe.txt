@@ -22,6 +22,14 @@ Usage:
     main.out
 Input:
     Program type, No of threads
+
+    Program type:
+        1 = Serial program
+        2 = Parallel program (based on Pthreads) with one mutex for the entire linked list
+        3 = Parallel program (based on Pthreads) with read-write locks for the entire linked list
+
+    No of threads
+        1 to 1024
 Output:
     Elapsed time for linkedlist operation at following cases
     a) Serial program
