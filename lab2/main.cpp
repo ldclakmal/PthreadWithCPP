@@ -31,9 +31,9 @@ struct Node {
     Node *next;
 };
 
-struct Node* initialize(Node *head);
+struct Node *initialize(Node *head);
 
-void getArgs(int argc, int argv);
+int getArgs(int argc, char *argv[]);
 
 void *serialProgram(void *rank);
 
@@ -53,13 +53,14 @@ int deleteNode(int value, struct Node **head);
 
 struct Node *head;
 
-int main() {
+int main(int argc, char *argv[]) {
 
     // use for generation random values using random_shuffle algorithm
     srand(time(0));
 
-    // get the program type and thread count as user inputs
-    cin >> program_type >> thread_count;
+    /* Get input args from command line */
+    int flag = getArgs(argc, argv);
+    if (flag == 0) return 0;
     printf("Program type: %d \n", program_type);
     printf("Thread count: %d \n \n", thread_count);
 
@@ -207,7 +208,7 @@ void *serialProgram(void *rank) {
  * Globals out: RAW_DATA, INPUT_ARRAY, FUNCTION_ARRAY, LINKEDLIST_ARRAY
  * Returns:     head
  */
-struct Node* initialize(struct Node *head) {
+struct Node *initialize(struct Node *head) {
 
     // initialize the arrays
     raw_array = new int[NUM_RANGE];
@@ -368,4 +369,24 @@ int insertNode(int value, struct Node **head) {
 //        printf("NO Insert : %d | ", value);
         return 0;
     }
+}
+
+/*------------------------------------------------------------------
+ * Function:    getArgs
+ * Purpose:     Get the command line args
+ * In args:     argc, argv
+ * Globals out: thread_count, n
+ */
+int getArgs(int argc, char *argv[]) {
+    program_type = strtol(argv[1], NULL, 10);
+    thread_count = strtoll(argv[2], NULL, 10);
+    if (program_type <= 0 || program_type > 3) {
+        printf("Invalid input for program type. Program type should be 1 or 2 or 3.\n");
+        return 0;
+    }
+    if (thread_count <= 0 || thread_count > MAX_THREADS) {
+        printf("Invalid no of thread count.\n");
+        return 0;
+    }
+    return 1;
 }
