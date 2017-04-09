@@ -86,11 +86,9 @@ int main() {
             GET_TIME(finish);
             elapsed = finish - start;
 
-            printf("\nSerial Program \n");
-            printf("------------------------------------------------------------------------ \n");
+            printf("Program type: Serial Program\n");
             printf("No. of threads: %d\n", thread_count);
             printf("The elapsed time: %e seconds\n", elapsed);
-
             printf("This is the final linkedlist after operations.\n");
             displayList(head);
             break;
@@ -108,11 +106,9 @@ int main() {
 
             pthread_mutex_destroy(&mutex);
 
-            printf("\nParallel Program with Mutex \n");
-            printf("------------------------------------------------------------------------ \n");
-            printf("No. of threads: %d,\n", thread_count);
+            printf("Program type: Parallel Program with Mutex\n");
+            printf("No. of threads: %d\n", thread_count);
             printf("The elapsed time: %e seconds\n", elapsed);
-
             printf("This is the final linkedlist after operations.\n");
             displayList(head);
             break;
@@ -130,11 +126,9 @@ int main() {
 
             pthread_rwlock_destroy(&rwlock);
 
-            printf("\nParallel Program with RW Locks \n");
-            printf("------------------------------------------------------------------------ \n");
-            printf("No. of threads: %d,\n", thread_count);
+            printf("Program type: Parallel Program with RW Locks\n");
+            printf("No. of threads: %d\n", thread_count);
             printf("The elapsed time: %e seconds\n", elapsed);
-
             printf("This is the final linkedlist after operations.\n");
             displayList(head);
             break;
@@ -204,8 +198,6 @@ void *serialProgram(void *rank) {
         else if (function_array[i] == 1) insertNode(input_array[i], &head);
         else if (function_array[i] == -1) deleteNode(input_array[i], &head);
     }
-
-    displayList(head);
 }
 
 /*------------------------------------------------------------------
@@ -278,7 +270,6 @@ struct Node* initialize(struct Node *head) {
  * Globals out: -
  */
 void displayList(struct Node *head) {
-    printf("--->>> ");
     struct Node *curr = head;
     while (curr != NULL) {
         cout << curr->data << " ";
@@ -311,10 +302,10 @@ int member(int value, struct Node *head) {
         curr = curr->next;
     }
     if (curr == NULL || curr->data > value) {
-        printf("NO Member : %d | ", value);
+//        printf("NO Member : %d | ", value);
         return 0;
     } else {
-        printf("YES Member : %d | ", value);
+//        printf("YES Member : %d | ", value);
         return 1;
     }
 }
@@ -340,10 +331,10 @@ int deleteNode(int value, struct Node **head) {
             pred->next = curr->next;
             free(curr);
         }
-        printf("YES Delete : %d | ", value);
+//        printf("YES Delete : %d | ", value);
         return 1;
     } else { /*value isn't in the list.*/
-        printf("NO Delete : %d | ", value);
+//        printf("NO Delete : %d | ", value);
         return 0;
     }
 }
@@ -371,10 +362,10 @@ int insertNode(int value, struct Node **head) {
             *head = temp;
         else
             pred->next = temp;
-        printf("YES Insert : %d | ", value);
+//        printf("YES Insert : %d | ", value);
         return 1;
     } else {
-        printf("NO Insert : %d | ", value);
+//        printf("NO Insert : %d | ", value);
         return 0;
     }
 }
