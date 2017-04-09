@@ -9,8 +9,8 @@ using namespace std;
 
 const int MAX_THREADS = 1024;
 const int NUM_RANGE = 65535;
-const int N = 10;
-const int M = 100;
+const int N = 1000;
+const int M = 10000;
 
 const double M_MEMBER = 0.9;
 const double M_INSERT = 0.05;
