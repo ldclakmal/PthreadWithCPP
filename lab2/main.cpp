@@ -31,38 +31,37 @@ struct Node {
     Node *next;
 };
 
-struct Node *initialize(Node *head);
+struct Node *head;
 
+struct Node *initialize(Node *head);
 int getArgs(int argc, char *argv[]);
+void printResults(double elapsed);
 
 void *serialProgram(void *rank);
-
 void *parallelProgramMutex(void *rank);
-
 void *parallelProgramRWLock(void *rank);
 
 void displayList(struct Node *head);
-
 void populateLinkedList(int arr[], int size, struct Node **head);
-
 int insertNode(int value, struct Node **head);
-
 int member(int value, struct Node *head);
-
 int deleteNode(int value, struct Node **head);
-
-struct Node *head;
 
 int main(int argc, char *argv[]) {
 
-    // use for generation random values using random_shuffle algorithm
-    srand(time(0));
+    long thread;
+    pthread_t *thread_handles;
+    double start, finish, elapsed;
+    thread_handles = (pthread_t *) malloc(thread_count * sizeof(pthread_t));
 
     /* Get input args from command line */
     int flag = getArgs(argc, argv);
     if (flag == 0) return 0;
     printf("Program type: %d \n", program_type);
     printf("Thread count: %d \n \n", thread_count);
+
+    // use for generation random values using random_shuffle algorithm
+    srand(time(0));
 
     head = NULL;                       // initialize head as NULL
     head = initialize(head);           // assign head after populating linkedlist and required arrays
@@ -72,11 +71,6 @@ int main(int argc, char *argv[]) {
      * 2 - Parallel program (based on Pthreads) with one mutex for the entire linked list
      * 3 - Parallel program (based on Pthreads) with read-write locks for the entire linked list
      */
-    long thread;
-    pthread_t *thread_handles;
-    double start, finish, elapsed;
-    thread_handles = (pthread_t *) malloc(thread_count * sizeof(pthread_t));
-
     switch (program_type) {
         case 1 : GET_TIME(start);
             for (thread = 0; thread < thread_count; thread++)
@@ -87,11 +81,7 @@ int main(int argc, char *argv[]) {
             GET_TIME(finish);
             elapsed = finish - start;
 
-            printf("Program type: Serial Program\n");
-            printf("No. of threads: %d\n", thread_count);
-            printf("The elapsed time: %e seconds\n", elapsed);
-            printf("This is the final linkedlist after operations.\n");
-            displayList(head);
+            printResults(elapsed);
             break;
         case 2 :
             pthread_mutex_init(&mutex, NULL);
@@ -107,11 +97,7 @@ int main(int argc, char *argv[]) {
 
             pthread_mutex_destroy(&mutex);
 
-            printf("Program type: Parallel Program with Mutex\n");
-            printf("No. of threads: %d\n", thread_count);
-            printf("The elapsed time: %e seconds\n", elapsed);
-            printf("This is the final linkedlist after operations.\n");
-            displayList(head);
+            printResults(elapsed);
             break;
         case 3 :
             pthread_rwlock_init(&rwlock, NULL);
@@ -127,11 +113,7 @@ int main(int argc, char *argv[]) {
 
             pthread_rwlock_destroy(&rwlock);
 
-            printf("Program type: Parallel Program with RW Locks\n");
-            printf("No. of threads: %d\n", thread_count);
-            printf("The elapsed time: %e seconds\n", elapsed);
-            printf("This is the final linkedlist after operations.\n");
-            displayList(head);
+            printResults(elapsed);
             break;
         default :
             printf("Invalid input for program type.");
@@ -141,6 +123,12 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+/*------------------------------------------------------------------
+ * Function:    ParallelProgramRWLock
+ * Purpose:     Runs the parallel program with read and write locks
+ * In args:     The current thread
+ * Globals out: -
+ */
 void *parallelProgramRWLock(void *rank) {
     long long i;
     long my_rank = (long) rank;
@@ -165,6 +153,12 @@ void *parallelProgramRWLock(void *rank) {
     }
 }
 
+/*------------------------------------------------------------------
+ * Function:    ParallelProgramMutex
+ * Purpose:     Runs the parallel program with mutex
+ * In args:     The current thread
+ * Globals out: -
+ */
 void *parallelProgramMutex(void *rank) {
     long long i;
     long my_rank = (long) rank;
@@ -187,6 +181,12 @@ void *parallelProgramMutex(void *rank) {
     }
 }
 
+/*------------------------------------------------------------------
+ * Function:    SerialProgram
+ * Purpose:     Runs the serial program of linkedlist
+ * In args:     The current thread
+ * Globals out: -
+ */
 void *serialProgram(void *rank) {
     long long i;
     long my_rank = (long) rank;
@@ -375,7 +375,7 @@ int insertNode(int value, struct Node **head) {
  * Function:    getArgs
  * Purpose:     Get the command line args
  * In args:     argc, argv
- * Globals out: thread_count, n
+ * Globals out: program_type, thread_count
  */
 int getArgs(int argc, char *argv[]) {
     program_type = strtol(argv[1], NULL, 10);
@@ -389,4 +389,20 @@ int getArgs(int argc, char *argv[]) {
         return 0;
     }
     return 1;
+}
+
+void printResults(double elapsed) {
+    switch (program_type) {
+        case 1 :
+            printf("Program type\t: Serial Program \n");
+            break;
+        case 2 :
+            printf("Program type\t: Parallel Program with Mutex\n");
+            break;
+        case 3 :
+            printf("Program type\t: Parallel Program with RW Locks\n");
+            break;
+    }
+    printf("No. of threads\t: %d\n", thread_count);
+    printf("The elapsed time: %e seconds\n", elapsed);
 }
